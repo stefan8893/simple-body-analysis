@@ -10,14 +10,26 @@
 
         <div v-if="!isAuthenticated">
           <q-btn round color="white" text-color="black" icon="login" @click="login">
-            <q-tooltip :delay="50" anchor="center left" self="center middle">
+            <q-tooltip :delay="200" anchor="bottom middle" self="bottom middle" :offset="[0, 30]">
               Login
             </q-tooltip>
           </q-btn>
         </div>
         <div v-else>
-          <q-btn round color="white" text-color="black" icon="logout" @click="logout">
-            <q-tooltip :delay="50" anchor="center left" self="center middle">
+          <q-btn push color="white" text-color="grey-9" icon="account_circle">
+            <q-popup-proxy>
+              <q-banner>
+                <!-- <template v-slot:avatar>
+                  <q-icon name="person" color="black" />
+                </template> -->
+                {{ user?.name }}
+                {{ user?.email }}
+              </q-banner>
+            </q-popup-proxy>
+          </q-btn>
+
+          <q-btn class="q-ml-md" round color="white" text-color="black" icon="logout" @click="logout">
+            <q-tooltip :delay="200" anchor="bottom middle" self="bottom middle" :offset="[0, 30]">
               Logout
             </q-tooltip>
           </q-btn>
@@ -48,7 +60,7 @@ defineOptions({
   name: 'MainLayout'
 });
 
-const { loginWithPopup, logoutWithPopup, isAuthenticated } = inject<AuthContext>(authContextKey, EmptyAuthContext)
+const { loginWithPopup, logoutWithPopup, isAuthenticated, user } = inject<AuthContext>(authContextKey, EmptyAuthContext)
 
 const leftDrawerOpen = ref(false);
 function toggleLeftDrawer() {

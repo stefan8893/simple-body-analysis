@@ -1,5 +1,5 @@
 <template>
-  <q-item dense clickable v-close-popup @click="$emit('click')">
+  <q-item clickable v-close-popup @click="$emit('click')">
     <q-item-section>
       <q-item-label>Logout</q-item-label>
     </q-item-section>

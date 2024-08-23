@@ -1,7 +1,7 @@
 <template>
   <q-item v-ripple>
     <q-item-section side>
-      <q-icon name="person" color="grey-9" size="2.2em"></q-icon>
+      <q-icon name="person" color="grey-9" size="3.25em"></q-icon>
     </q-item-section>
     <q-item-section>
       <q-item-label>{{ props.userName }}</q-item-label>

@@ -15,27 +15,27 @@
         </q-item>
       </RouterLink>
 
-      <RouterLink to="/weekly" class="disable-link-styling">
+      <RouterLink to="/daily" class="disable-link-styling">
         <q-item clickable v-ripple>
           <q-item-section avatar top>
             <q-avatar icon="calendar_view_week" color="light-green-9" text-color="white" />
           </q-item-section>
 
           <q-item-section>
-            <q-item-label lines="1">Wöchtentlich</q-item-label>
+            <q-item-label lines="1">Täglich</q-item-label>
           </q-item-section>
 
         </q-item>
       </RouterLink>
 
-      <RouterLink to="/monthly" class="disable-link-styling">
+      <RouterLink to="/weekly" class="disable-link-styling">
         <q-item clickable v-ripple>
           <q-item-section avatar top>
             <q-avatar icon="calendar_month" color="brown-6" text-color="white" />
           </q-item-section>
 
           <q-item-section>
-            <q-item-label lines="1">Monatlich</q-item-label>
+            <q-item-label lines="1">Wöchentlich</q-item-label>
           </q-item-section>
 
         </q-item>

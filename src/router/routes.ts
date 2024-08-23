@@ -17,14 +17,14 @@ const routes: RouteRecordRaw[] = [
       },
 
       {
-        path: '/weekly',
-        name: 'Weekly',
-        component: () => import('pages/weekly/WeeklyAnalysis.vue'),
+        path: '/daily',
+        name: 'Daily',
+        component: () => import('pages/weekly/DailyAnalysis.vue'),
       },
       {
-        path: '/monthly',
-        name: 'Monthly',
-        component: () => import('pages/monthly/MonthlyAnalysis.vue'),
+        path: '/weekly',
+        name: 'Weekly',
+        component: () => import('pages/monthly/WeeklyAnalysis.vue'),
       },
       {
         path: '/tabular',

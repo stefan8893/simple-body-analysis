@@ -12,13 +12,15 @@
           <q-btn color="white" text-color="grey-9" label="Login" @click="login"></q-btn>
         </div>
         <div v-else>
-          <q-btn-dropdown dense color="white" text-color="grey-9" icon="account_circle">
-            <q-list>
-              <BusinessCard :user-name="user?.name" :email="user?.email" />
-              <q-separator />
-              <LogoutItem @click="logout" />
-            </q-list>
-          </q-btn-dropdown>
+          <q-btn class="q-mt-sm q-mb-sm" color="white" text-color="grey-9" icon="account_circle" size="1em">
+            <q-menu>
+              <q-list>
+                <BusinessCard :user-name="user?.name" :email="user?.email" />
+                <q-separator />
+                <LogoutItem @click="logout" />
+              </q-list>
+            </q-menu>
+          </q-btn>
         </div>
       </q-toolbar>
     </q-header>

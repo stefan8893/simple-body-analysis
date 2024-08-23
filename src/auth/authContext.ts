@@ -2,15 +2,20 @@ import {
   AccountInfo,
   AuthenticationResult,
   Configuration,
+  EventMessage,
+  EventMessageUtils,
   EventType,
+  InteractionStatus,
+  IPublicClientApplication,
   LogLevel,
   PublicClientApplication,
 } from '@azure/msal-browser';
 import { ref, Ref, watch } from 'vue';
 
-type User = {
+export type User = {
   name: string;
   email: string;
+  idToken: string;
 };
 
 export type AuthContext = {
@@ -28,6 +33,122 @@ export const EmptyAuthContext: AuthContext = {
   user: ref(null),
   isAuthenticated: ref(false),
 };
+
+export function initializeAuth(config: Configuration): AuthContext {
+  const inProgress = ref(InteractionStatus.Startup);
+
+  const instance = new PublicClientApplication({ ...loggingConfig, ...config });
+
+  const activeAccount = ref(instance.getActiveAccount());
+  addEventListeners(instance, activeAccount, inProgress);
+  initialize(instance);
+
+  const isAuthenticated = ref(!!activeAccount.value);
+
+  const currentUser = initializeUser(activeAccount);
+  watch(activeAccount, () => {
+    isAuthenticated.value = !!activeAccount.value;
+
+    if (isAuthenticated.value) updateUser(currentUser, activeAccount);
+    else clearUser(currentUser);
+  });
+
+  const login = () =>
+    instance
+      .loginPopup({ scopes: ['openid', 'email', 'offline_access'] })
+      .then(() => {
+        instance.handleRedirectPromise();
+      });
+
+  const logout = () =>
+    instance.logoutPopup().then(() => {
+      instance.handleRedirectPromise();
+    });
+
+  const fetchTokenWithCaching = aquireAccessTokenCache(
+    instance,
+    isAuthenticated,
+  );
+
+  return {
+    loginWithPopup: login,
+    logoutWithPopup: logout,
+    acquireAccessToken: fetchTokenWithCaching,
+    user: currentUser,
+    isAuthenticated,
+  };
+}
+
+function initialize(instance: PublicClientApplication) {
+  instance.initialize().then(() => {
+    instance.handleRedirectPromise().catch(() => {
+      // Errors should be handled by listening to the LOGIN_FAILURE event
+      return;
+    });
+  });
+}
+
+function aquireAccessTokenCache(
+  instance: IPublicClientApplication,
+  isAuthenticated: Ref<boolean>,
+) {
+  let token = null as string | null;
+
+  const fetchToken = async () => {
+    const accessToken = await acquireAccessToken(instance);
+    token = accessToken;
+
+    return accessToken;
+  };
+
+  const isTokenExpired = (token: string) => {
+    const [, claims] = token.split('.');
+
+    if (!claims) throw 'invalid token';
+
+    const decodedClaims = atob(claims);
+    const claimsJson = JSON.parse(decodedClaims);
+    const expirationUnixTimestamp = claimsJson['exp'];
+    const expiresAt = new Date(expirationUnixTimestamp * 1000);
+    const now = new Date();
+
+    return now >= expiresAt;
+  };
+
+  return async () => {
+    if (!isAuthenticated.value) {
+      token = null;
+    }
+
+    if (!token) return await fetchToken();
+
+    if (isTokenExpired(token)) {
+      return fetchToken();
+    }
+
+    return token;
+  };
+}
+
+async function acquireAccessToken(instance: IPublicClientApplication) {
+  const tokenRequest = {
+    scopes: ['.default'],
+  };
+
+  try {
+    const response = await instance.acquireTokenSilent(tokenRequest);
+    return response.accessToken;
+  } catch (e) {
+    return instance
+      .loginPopup(tokenRequest)
+      .then((response) => {
+        return response.accessToken;
+      })
+      .catch((e) => {
+        throw e;
+      });
+  }
+}
 
 const loggingConfig = {
   system: {
@@ -62,59 +183,33 @@ const loggingConfig = {
   },
 };
 
-export function initializeAuth(config: Configuration): AuthContext {
-  const instance = new PublicClientApplication({ ...loggingConfig, ...config });
-
-  const activeAccount = ref(instance.getActiveAccount());
-  addEventListener(instance, activeAccount);
-  initialize(instance);
-
-  const acquireAccessToken = () => Promise.resolve('empty');
-
-  const isAuthenticated = ref(!!activeAccount.value);
-
-  const currentUser = ref({
-    name: instance.getActiveAccount()?.name ?? '',
-    email: instance.getActiveAccount()?.username ?? '',
-  });
-
-  watch(activeAccount, () => {
-    isAuthenticated.value = !!activeAccount.value;
-
-    if (isAuthenticated.value) {
-      currentUser.value.name = activeAccount.value!.name!;
-      currentUser.value.email = activeAccount.value!.username!;
-    } else {
-      currentUser.value.name = '';
-      currentUser.value.email = '';
-    }
-  });
-
-  const login = () =>
-    instance
-      .loginPopup({ scopes: ['openid', 'email', 'offline_access'] })
-      .then(() => {});
-
-  return {
-    loginWithPopup: login,
-    logoutWithPopup: () => instance.logoutPopup().then(() => {}),
-    acquireAccessToken,
-    user: currentUser,
-    isAuthenticated,
-  };
-}
-function initialize(instance: PublicClientApplication) {
-  instance.initialize().then(() => {
-    instance.handleRedirectPromise().catch(() => {
-      // Errors should be handled by listening to the LOGIN_FAILURE event
-      return;
-    });
+function initializeUser(account: Ref<AccountInfo | null>) {
+  return ref({
+    name: account.value?.name ?? '',
+    email: account.value?.username ?? '',
+    idToken: account.value?.idToken ?? '',
   });
 }
 
-function addEventListener(
+function updateUser(
+  currentUser: Ref<User>,
+  activeAccount: Ref<AccountInfo | null>,
+) {
+  currentUser.value.name = activeAccount.value?.name ?? '';
+  currentUser.value.email = activeAccount.value?.username ?? '';
+  currentUser.value.idToken = activeAccount.value?.idToken ?? '';
+}
+
+function clearUser(currentUser: Ref<User>) {
+  currentUser.value.name = '';
+  currentUser.value.email = '';
+  currentUser.value.idToken = '';
+}
+
+function addEventListeners(
   instance: PublicClientApplication,
   activeAccount: Ref<AccountInfo | null>,
+  inProgress: Ref<InteractionStatus>,
 ) {
   instance.addEventCallback((event) => {
     if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
@@ -128,5 +223,13 @@ function addEventListener(
       instance.setActiveAccount(null);
       activeAccount.value = null;
     }
+  });
+
+  instance.addEventCallback((message: EventMessage) => {
+    const status = EventMessageUtils.getInteractionStatusFromEvent(
+      message,
+      inProgress.value,
+    );
+    if (status !== null) inProgress.value = status;
   });
 }

@@ -53,11 +53,20 @@
 
         </q-item>
       </RouterLink>
-
     </q-list>
+
+    <div class="row justify-center q-mt-xl">
+      <div class="items-center">Version&nbsp;<q-badge outline color="teal">{{ version }}</q-badge></div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-
+import { version } from '../../package.json'
 </script>
+
+<style lang="sass" scoped>
+.my-card
+  width: 100%
+  max-width: 250px
+</style>

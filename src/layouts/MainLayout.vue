@@ -25,7 +25,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-if="isAuthenticated" v-model="leftDrawerOpen" show-if-above side="left" bordered persistent>
+    <q-drawer v-if="isAuthenticated" v-model="leftDrawerOpen" show-if-above side="left" bordered>
       <SideBar />
     </q-drawer>
 

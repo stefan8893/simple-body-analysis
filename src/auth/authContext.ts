@@ -222,13 +222,13 @@ function addEventListeners(
       const account = payload.account;
       instance.setActiveAccount(account);
       activeAccount.value = account;
-      router.push({ name: 'Home' });
     }
 
     if (event.eventType === EventType.LOGOUT_SUCCESS && event.payload) {
       instance.setActiveAccount(null);
       activeAccount.value = null;
-      router.push({ name: 'LandingPage' });
+
+      router.push({ name: 'Home' });
     }
   });
 

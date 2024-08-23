@@ -6,28 +6,23 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
-        path: '/welcome',
-        name: 'LandingPage',
-        component: () => import('pages/LandingPage.vue'),
-      },
-      {
-        path: '/',
+        path: '',
         name: 'Home',
-        component: () => import('pages/AnalysisDashboard.vue'),
+        component: () => import('pages/IndexPage.vue'),
       },
 
       {
-        path: '/daily',
+        path: 'daily',
         name: 'Daily',
         component: () => import('pages/weekly/DailyAnalysis.vue'),
       },
       {
-        path: '/weekly',
+        path: 'weekly',
         name: 'Weekly',
         component: () => import('pages/monthly/WeeklyAnalysis.vue'),
       },
       {
-        path: '/tabular',
+        path: 'tabular',
         name: 'Tabular',
         component: () => import('pages/tabular/TableView.vue'),
       },

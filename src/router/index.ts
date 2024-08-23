@@ -41,8 +41,7 @@ export default route(function (/* { store, ssrContext } */) {
       EmptyAuthContext,
     );
 
-    if (to.name !== 'LandingPage' && !isAuthenticated.value)
-      return { name: 'LandingPage' };
+    if (to.name !== 'Home' && !isAuthenticated.value) return { name: 'Home' };
   });
 
   return Router;

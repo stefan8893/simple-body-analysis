@@ -1,0 +1,63 @@
+<template>
+  <div class="q-pa-md q-pt-lg q-gutter-md">
+    <q-list padding class="rounded-borders" style="max-width: 350px">
+
+      <RouterLink to="/" class="disable-link-styling">
+        <q-item clickable v-ripple>
+          <q-item-section avatar top>
+            <q-avatar icon="home" color="blue-8" text-color="white" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label lines="1">Home</q-item-label>
+          </q-item-section>
+
+        </q-item>
+      </RouterLink>
+
+      <RouterLink to="/weekly" class="disable-link-styling">
+        <q-item clickable v-ripple>
+          <q-item-section avatar top>
+            <q-avatar icon="calendar_view_week" color="light-green-9" text-color="white" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label lines="1">Wöchtentlich</q-item-label>
+          </q-item-section>
+
+        </q-item>
+      </RouterLink>
+
+      <RouterLink to="/monthly" class="disable-link-styling">
+        <q-item clickable v-ripple>
+          <q-item-section avatar top>
+            <q-avatar icon="calendar_month" color="brown-6" text-color="white" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label lines="1">Monatlich</q-item-label>
+          </q-item-section>
+
+        </q-item>
+      </RouterLink>
+
+      <RouterLink to="/tabular" class="disable-link-styling">
+        <q-item clickable v-ripple>
+          <q-item-section avatar top>
+            <q-avatar icon="table_chart" color="blue-grey-8" text-color="white" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label lines="1">Tabular</q-item-label>
+          </q-item-section>
+
+        </q-item>
+      </RouterLink>
+
+    </q-list>
+  </div>
+</template>
+
+<script setup lang="ts">
+
+</script>

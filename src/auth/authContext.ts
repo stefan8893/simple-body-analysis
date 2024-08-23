@@ -11,6 +11,7 @@ import {
   PublicClientApplication,
 } from '@azure/msal-browser';
 import { ref, Ref, watch } from 'vue';
+import { Router } from 'vue-router';
 
 export type User = {
   name: string;
@@ -34,13 +35,16 @@ export const EmptyAuthContext: AuthContext = {
   isAuthenticated: ref(false),
 };
 
-export function initializeAuth(config: Configuration): AuthContext {
+export function initializeAuth(
+  config: Configuration,
+  router: Router,
+): AuthContext {
   const inProgress = ref(InteractionStatus.Startup);
 
   const instance = new PublicClientApplication({ ...loggingConfig, ...config });
 
   const activeAccount = ref(instance.getActiveAccount());
-  addEventListeners(instance, activeAccount, inProgress);
+  addEventListeners(instance, activeAccount, inProgress, router);
   initialize(instance);
 
   const isAuthenticated = ref(!!activeAccount.value);
@@ -210,6 +214,7 @@ function addEventListeners(
   instance: PublicClientApplication,
   activeAccount: Ref<AccountInfo | null>,
   inProgress: Ref<InteractionStatus>,
+  router: Router,
 ) {
   instance.addEventCallback((event) => {
     if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
@@ -217,11 +222,13 @@ function addEventListeners(
       const account = payload.account;
       instance.setActiveAccount(account);
       activeAccount.value = account;
+      router.push({ name: 'Home' });
     }
 
     if (event.eventType === EventType.LOGOUT_SUCCESS && event.payload) {
       instance.setActiveAccount(null);
       activeAccount.value = null;
+      router.push({ name: 'LandingPage' });
     }
   });
 

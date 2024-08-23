@@ -2,7 +2,7 @@
   <q-layout view="hHh lpR fFf">
     <q-header bordered class="bg-grey-9 text-white">
       <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-btn v-if="isAuthenticated" flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title>
           Simple Body Analysis
@@ -23,12 +23,8 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above side="left" bordered persistent>
-      <q-list>
-        <q-item-label header>
-          Menu items goes here ...
-        </q-item-label>
-      </q-list>
+    <q-drawer v-if="isAuthenticated" v-model="leftDrawerOpen" show-if-above side="left" bordered persistent>
+      <SideBar />
     </q-drawer>
 
     <q-page-container>
@@ -43,6 +39,7 @@ import { authContextKey } from 'src/injection-keys';
 import { inject, ref } from 'vue';
 import BusinessCard from './BusinessCard.vue';
 import LogoutItem from './LogoutItem.vue';
+import SideBar from './SideBar.vue'
 
 const { loginWithPopup, logoutWithPopup, isAuthenticated, user } = inject<AuthContext>(authContextKey, EmptyAuthContext)
 

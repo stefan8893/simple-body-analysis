@@ -22,7 +22,7 @@ export type User = {
 export type AuthContext = {
   loginWithPopup: () => Promise<void>;
   logoutWithPopup: () => Promise<void>;
-  acquireAccessToken: () => Promise<string>;
+  acquireAccessToken: (scopes: string[]) => Promise<string>;
   user: Ref<User | null>;
   isAuthenticated: Ref<boolean>;
 };
@@ -59,7 +59,9 @@ export function initializeAuth(
 
   const login = () =>
     instance
-      .loginPopup({ scopes: ['openid', 'email', 'offline_access'] })
+      .loginPopup({
+        scopes: ['openid', 'email', 'offline_access'],
+      })
       .then(() => {
         instance.handleRedirectPromise();
       });
@@ -92,15 +94,21 @@ function initialize(instance: PublicClientApplication) {
   });
 }
 
+function createCacheKey(scopes: string[]) {
+  return scopes.reduce((acc, next) => acc + next, 'scopes:');
+}
+
 function aquireAccessTokenCache(
   instance: IPublicClientApplication,
   isAuthenticated: Ref<boolean>,
 ) {
-  let token = null as string | null;
+  const tokenCache = new Map<string, string>();
 
-  const fetchToken = async () => {
-    const accessToken = await acquireAccessToken(instance);
-    token = accessToken;
+  const fetchToken = async (scopes: string[]) => {
+    const accessToken = await acquireAccessToken(instance, scopes);
+
+    const tokenCacheKey = createCacheKey(scopes);
+    tokenCache.set(tokenCacheKey, accessToken);
 
     return accessToken;
   };
@@ -119,24 +127,30 @@ function aquireAccessTokenCache(
     return now >= expiresAt;
   };
 
-  return async () => {
+  return async (scopes: string[]) => {
+    const cacheKey = createCacheKey(scopes);
     if (!isAuthenticated.value) {
-      token = null;
+      tokenCache.delete(cacheKey);
     }
 
-    if (!token) return await fetchToken();
+    if (!tokenCache.has(cacheKey)) return await fetchToken(scopes);
 
-    if (isTokenExpired(token)) {
-      return fetchToken();
+    const cachedToken = tokenCache.get(cacheKey);
+
+    if (isTokenExpired(cachedToken!)) {
+      return fetchToken(scopes);
     }
 
-    return token;
+    return cachedToken!;
   };
 }
 
-async function acquireAccessToken(instance: IPublicClientApplication) {
+async function acquireAccessToken(
+  instance: IPublicClientApplication,
+  scopes: string[],
+) {
   const tokenRequest = {
-    scopes: ['.default'],
+    scopes: scopes,
   };
 
   try {

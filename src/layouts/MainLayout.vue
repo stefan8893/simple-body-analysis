@@ -41,9 +41,9 @@ import { authContextKey } from 'src/injection-keys';
 import { inject, ref } from 'vue';
 import BusinessCard from './BusinessCard.vue';
 import LogoutItem from './LogoutItem.vue';
-import SideBar from './SideBar.vue'
+import SideBar from './SideBar.vue';
 
-const { loginWithPopup, logoutWithPopup, isAuthenticated, user } = inject<AuthContext>(authContextKey, EmptyAuthContext)
+const { loginWithPopup, logoutWithPopup, isAuthenticated, user } = inject<AuthContext>(authContextKey, EmptyAuthContext);
 
 const leftDrawerOpen = ref(false);
 function toggleLeftDrawer() {

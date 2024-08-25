@@ -14,12 +14,12 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'daily',
         name: 'Daily',
-        component: () => import('pages/weekly/DailyAnalysis.vue'),
+        component: () => import('pages/daily/DailyAnalysis.vue'),
       },
       {
         path: 'weekly',
         name: 'Weekly',
-        component: () => import('pages/monthly/WeeklyAnalysis.vue'),
+        component: () => import('pages/weekly/WeeklyAnalysis.vue'),
       },
       {
         path: 'tabular',

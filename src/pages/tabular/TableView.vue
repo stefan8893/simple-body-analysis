@@ -1,53 +1,45 @@
 <template>
   <q-page class="row items-center justify-evenly">
 
+    <DateRangePicker v-model:from="from" v-model:to="to" color="blue-grey-8" @submit="onDateRangePickerSubmit">
+    </DateRangePicker>
 
     <div class="q-pa-md">
       <q-table title="Körperanalyse" :rows="rows" :columns="columns" row-key="analysedAt" />
     </div>
-
 
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { QTableColumn } from 'quasar';
-import { TableClient } from '@azure/data-tables';
-import { AccessToken, TokenCredential } from '@azure/identity';
-import { inject, onMounted, ref, Ref } from 'vue';
-import { AuthContext, EmptyAuthContext } from 'src/auth/authContext';
-import { authContextKey } from 'src/injection-keys';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { onMounted, ref, Ref } from 'vue';
+import DateRangePicker from 'components/dateRangePicker.vue';
 
 const rows = ref([]) as Ref<BodyAnalysis[]>;
+const from = ref(null);
+const to = ref(null);
 
-const { acquireAccessToken } = inject<AuthContext>(authContextKey, EmptyAuthContext);
+function onDateRangePickerSubmit() {
+  console.log('onMounted: ', from.value, to.value);
+}
 
 onMounted(async () => {
-  const accessToken = await acquireAccessToken(['https://storage.azure.com/user_impersonation']);
 
-  const tokenAdapter: TokenCredential = {
-    getToken: (): Promise<AccessToken | null> => Promise.resolve(<AccessToken>{
-      token: accessToken,
-      expiresOnTimestamp: Date.now() + 60 * 60 * 1000
-    })
-  }
+  console.log('onMounted: ', from.value, to.value);
 
-  const client = new TableClient('https://simplebodyanalysis.table.core.windows.net', 'BodyAnalysis', tokenAdapter);
-
-  let entitiesIterator = client.listEntities()
-  for await (const entity of entitiesIterator) {
-    rows.value.push({
-      analysedAt: format(new Date(entity.rowKey as string), 'Pp', { locale: de }),
-      weight: entity.Weight as number,
-      bmi: entity.Bmi as number,
-      bodyFat: entity.BodyFat as number,
-      bodyWater: entity.BodyWater as number,
-      muscleMass: entity.MuscleMass as number,
-      dailyCalorieRequirement: entity.DailyCalorieRequirement as number
-    });
-  }
+  // let entitiesIterator = client.listEntities()
+  // for await (const entity of entitiesIterator) {
+  //   rows.value.push({
+  //     analysedAt: format(new Date(entity.rowKey as string), 'Pp', { locale: de }),
+  //     weight: entity.Weight as number,
+  //     bmi: entity.Bmi as number,
+  //     bodyFat: entity.BodyFat as number,
+  //     bodyWater: entity.BodyWater as number,
+  //     muscleMass: entity.MuscleMass as number,
+  //     dailyCalorieRequirement: entity.DailyCalorieRequirement as number
+  //   });
+  // }
 
 });
 
@@ -76,9 +68,6 @@ const columns: QTableColumn<BodyAnalysis>[] = [
   { name: 'bodyWater', label: 'Wasseranteil', field: 'bodyWater' },
   { name: 'muscleMass', label: 'Muskelmasse', field: 'muscleMass' },
   { name: 'dailyCalorieRequirement', label: 'Tägl. Kalorienbedarf', field: 'dailyCalorieRequirement' },
-]
-
-
-
+];
 
 </script>

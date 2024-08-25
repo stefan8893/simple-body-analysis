@@ -10,6 +10,6 @@ import { inject } from 'vue';
 import { AuthContext, EmptyAuthContext } from 'src/auth/authContext';
 import { authContextKey } from 'src/injection-keys';
 
-const { isAuthenticated } = inject<AuthContext>(authContextKey, EmptyAuthContext)
+const { isAuthenticated } = inject<AuthContext>(authContextKey, EmptyAuthContext);
 
 </script>

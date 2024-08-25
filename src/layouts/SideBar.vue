@@ -48,7 +48,7 @@
           </q-item-section>
 
           <q-item-section>
-            <q-item-label lines="1">Tabular</q-item-label>
+            <q-item-label lines="1">Tabellarisch</q-item-label>
           </q-item-section>
 
         </q-item>
@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { version } from '../../package.json'
+import { version } from '../../package.json';
 </script>
 
 <style lang="sass" scoped>

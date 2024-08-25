@@ -1,6 +1,13 @@
 import { boot } from 'quasar/wrappers';
 import { initializeAuth } from 'src/auth/authContext';
-import { authContextKey } from 'src/injection-keys';
+import {
+  authContextKey,
+  azureTablesRepositoryKey as bodyAnalysisRepositoryKey,
+} from 'src/injection-keys';
+import {
+  AzureTablesConfiguration,
+  initializeAzureTablesRepository,
+} from 'src/repositories/bodyAnalysisRepository';
 
 const authConfiguration = {
   auth: {
@@ -14,6 +21,21 @@ const authConfiguration = {
   },
 };
 
+const azureTablesConfiguration: AzureTablesConfiguration = {
+  storageAccount: 'https://simplebodyanalysis.table.core.windows.net',
+  scope: 'https://storage.azure.com/user_impersonation',
+  table: 'BodyAnalysis',
+};
+
 export default boot(({ app, router }) => {
-  app.provide(authContextKey, initializeAuth(authConfiguration, router));
+  const authContext = initializeAuth(authConfiguration, router);
+  app.provide(authContextKey, authContext);
+
+  app.provide(
+    bodyAnalysisRepositoryKey,
+    initializeAzureTablesRepository(
+      azureTablesConfiguration,
+      authContext.acquireAccessToken,
+    ),
+  );
 });
